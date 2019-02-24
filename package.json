@@ -27,6 +27,7 @@
   "homepage": "https://github.com/jastupp/node-course-chat#readme",
   "devDependencies": {
     "expect": "^24.1.0",
-    "mocha": "^6.0.1"
+    "mocha": "^6.0.1",
+    "nodemon": "^1.18.10"
   }
 }

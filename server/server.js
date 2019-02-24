@@ -25,13 +25,11 @@ io.on('connection', (socket) => {
     // tell every one else about the new user
     socket.broadcast.emit('newMessage', createMessage('Admin', 'A new user has joined the chat.'));
 
-
     // called when a message is created
-    socket.on('createMessage', (message) => {
-
+    socket.on('createMessage', (message, callback) => {
         // tell everyone about the new message
-        io.emit('newMessage', createMessage(message.from, message,text));
-
+        io.emit('newMessage', createMessage(message.from, message.text));
+        callback({text: 'OK'})
     });
 
     // called when the user disconnects

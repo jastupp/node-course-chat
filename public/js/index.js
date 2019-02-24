@@ -13,4 +13,22 @@ socket.on('disconnect', () => {
 // called when a new message event is fired
 socket.on('newMessage', (message) => {
     console.log('newMessage', message);
+
+    const li = jQuery('<li></li>');
+    li.text(`${message.from}: ${message.text}`);
+    jQuery('#messages').append(li);
+
+});
+
+jQuery('#message-form').on('submit', (event) => {
+    event.preventDefault();
+
+    // send a message
+    socket.emit('createMessage', {
+        from: 'client',
+        text: jQuery('[name=message]').val()
+    }, (message) => {
+        console.log('Got it ....', message)
+    });
+
 });
