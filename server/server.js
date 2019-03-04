@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (message, callback) => {
         // tell everyone about the new message
         io.emit('newMessage', createMessage(message.from, message.text));
-        callback({text: 'OK'})
+        callback()
     });
 
     // called when a location is created
