@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
     // called when a location is created
     socket.on('createLocationMessage', (location) => {
         // tell everyone about the new location
-        io.emit('newLocationMessage', createLocationMessage('Admin', location.latitude, location.longitude));
+        io.emit('newLocationMessage', createLocationMessage('User', location.latitude, location.longitude));
     });
 
     // called when the user disconnects

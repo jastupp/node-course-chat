@@ -12,25 +12,26 @@ socket.on('disconnect', () => {
 
 // called when a new message event is fired
 socket.on('newMessage', (message) => {
-    console.log('newMessage', message);
-
     const time = moment(message.createdAt).format('h:mm a');
-
-    const li = jQuery('<li></li>');
-    li.text(`${message.from} ${time}: ${message.text}`);
-    jQuery('#messages').append(li);
-
+    const template = jQuery('#message-template').html();
+    const html = Mustache.render(template, {
+        text: message.text,
+        from: message.from,
+        createdAt: time
+    });
+    jQuery('#messages').append(html);
 });
 
 socket.on('newLocationMessage', (location) => {
-    const li = jQuery('<li></li>');
-    const a = jQuery('<a target="_blank">My Current Location</a>');
     const time = moment(location.createdAt).format('h:mm a');
+    const template = jQuery('#location-template').html();
+    const html = Mustache.render(template, {
+        url: location.url,
+        from: location.from,
+        createdAt: time
+    });
 
-    li.text(`${location.from} ${time}: `);
-    a.attr('href', location.url);
-    li.append(a);
-    jQuery('#messages').append(li);
+    jQuery('#messages').append(html);
 });
 
 jQuery('#message-form').on('submit', (event) => {
@@ -44,7 +45,6 @@ jQuery('#message-form').on('submit', (event) => {
         text: message_text.val()
     }, (message) => {
         message_text.val('');
-        //console.log('Got it ....', message)
     });
 
 });
