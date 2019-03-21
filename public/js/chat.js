@@ -10,21 +10,45 @@ const scrollToBottom = () => {
     const new_message_height = new_message.innerHeight();
     const last_message_height = new_message.prev().innerHeight();
 
-
     if(client_height + scroll_top + new_message_height + last_message_height >= scroll_height) {
         messages.scrollTop(scroll_height);
     }
-
 };
 
 // called when the user is connected
 socket.on('connect', () => {
     console.log('Connected to server');
+    const params = jQuery.deparam();
+    console.log('Connected to server', params);
+
+    socket.emit('join', params, (error) => {
+        if(error) {
+            alert(error);
+            window.location.href = "/";
+        } else {
+            console.log('No Error');
+        }
+    });
+
 });
 
 // called when the user disconnects
 socket.on('disconnect', () => {
     console.log('Where is the server ?');
+});
+
+// called when the user list needs updating
+socket.on('updateUserList', (users) => {
+    let ol = jQuery('<ol></ol>');
+
+    // loop for the users
+    users.forEach((next) => {
+       ol.append(jQuery('<li></li>').text(next));
+    });
+
+    jQuery('#users').html(ol);
+
+    console.log('Users', users);
 });
 
 // called when a new message event is fired

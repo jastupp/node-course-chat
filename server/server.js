@@ -4,6 +4,8 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const { createMessage, createLocationMessage }= require('./utils/message');
+const { isValidString } = require('./utils/validation');
+const { Users } = require('./utils/users');
 
 const public_path = path.join(__dirname, '..', 'public');
 const PORT = process.env.PORT || 3000;
@@ -11,22 +13,38 @@ const app = express();
 
 const server = http.createServer(app);
 const io = socketIO(server);
+const users = new Users();
 
 app.use(express.static(public_path));
 
-// called when we havw a connection
+// called when we have a connection
 io.on('connection', (socket) => {
 
     console.log('New User Connected');
 
-    // send a welcome message to the new user
-    socket.emit('newMessage', createMessage('Admin', 'Welcome to the message app'));
+    socket.on('join', (params, callback) => {
+        console.log('Join Called');
+        if(isValidString(params.name) && isValidString(params.room)) {
+            socket.join(params.room);
+            users.remove(socket.id);
+            users.add(socket.id, params.name, params.room);
 
-    // tell every one else about the new user
-    socket.broadcast.emit('newMessage', createMessage('Admin', 'A new user has joined the chat.'));
+            //console.log(users);
+            //console.log(users.getAll(params.room));
+
+            io.to(params.room).emit('updateUserList', users.getAll(params.room));
+
+            socket.emit('newMessage', createMessage('Admin', 'Welcome to the message app'));
+            socket.broadcast.to(params.room).emit('newMessage', createMessage('Admin', `${params.name} has joined.`));
+            callback();
+        } else {
+            callback('Name and room are required');
+        }
+    });
 
     // called when a message is created
     socket.on('createMessage', (message, callback) => {
+        console.log('Create Message');
         // tell everyone about the new message
         io.emit('newMessage', createMessage(message.from, message.text));
         callback()
@@ -40,6 +58,10 @@ io.on('connection', (socket) => {
 
     // called when the user disconnects
     socket.on('disconnect', () => {
+        const user = users.remove(socket.id);
+        io.to(user.room).emit('updateUserList', users.getAll(user.room));
+        io.to(user.room).emit('newMessage', createMessage('Admin', `${user.name} has left..`));
+
         console.log('Where is the User ?');
     });
 });
