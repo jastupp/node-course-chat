@@ -44,16 +44,20 @@ io.on('connection', (socket) => {
 
     // called when a message is created
     socket.on('createMessage', (message, callback) => {
-        console.log('Create Message');
+
+        const user = users.get(socket.id);
+
         // tell everyone about the new message
-        io.emit('newMessage', createMessage(message.from, message.text));
+        io.to(user.room).emit('newMessage', createMessage(user.name, message.text));
         callback()
     });
 
     // called when a location is created
     socket.on('createLocationMessage', (location) => {
+        const user = users.get(socket.id);
+
         // tell everyone about the new location
-        io.emit('newLocationMessage', createLocationMessage('User', location.latitude, location.longitude));
+        io.to(user.room).emit('newLocationMessage', createLocationMessage(user.name, location.latitude, location.longitude));
     });
 
     // called when the user disconnects
